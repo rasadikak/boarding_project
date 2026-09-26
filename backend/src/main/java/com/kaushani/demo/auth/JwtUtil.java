@@ -53,13 +53,13 @@ public class JwtUtil {
     }
 
     public String extractEmail(String token){
-    Claims claims = Jwts.parser()
-            .verifyWith(secretKey)
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
+        Claims claims = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
 
-    return claims.getSubject();   
+        return claims.getSubject();   
 }
 
 
