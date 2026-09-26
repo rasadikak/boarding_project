@@ -1,6 +1,7 @@
 package com.kaushani.demo.auth;
 
 import com.kaushani.demo.notifications.EmailService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,9 @@ public class PasswordResetService {
     private final JwtUtil jwtUtil;
     private final PasswordSetupTokenRepository tokenRepository;
     private final EmailService emailService;
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     public PasswordResetService(UserRepository userRepository,
                                  PasswordEncoder passwordEncoder,
@@ -29,7 +33,6 @@ public class PasswordResetService {
 
     public void sendPasswordSetupEmail(User user) {
 
-        // Invalidate any older, unused links for this user first
         List<PasswordSetupToken> oldTokens = tokenRepository.findByUserAndUsedFalse(user);
         for (PasswordSetupToken old : oldTokens) {
             old.setUsed(true);
@@ -39,7 +42,7 @@ public class PasswordResetService {
         String token = jwtUtil.generatePasswordSetupToken(user.getEmail());
         tokenRepository.save(new PasswordSetupToken(token, user));
 
-        String link = "https://yourfrontend.com/set-password?token=" + token;
+        String link = frontendUrl + "/set-password?token=" + token;
 
         emailService.sendEmail(
                 user.getEmail(),
@@ -50,10 +53,8 @@ public class PasswordResetService {
 
     public void resetPassword(String token, String newPassword) {
 
-        // 1. Verify signature, expiry, and purpose
         String email = jwtUtil.extractPasswordSetupEmail(token);
 
-        // 2. Confirm this exact token hasn't already been used
         PasswordSetupToken setupToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid or unknown token"));
 
@@ -64,16 +65,13 @@ public class PasswordResetService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 3. Update the password
         user.setPassword(passwordEncoder.encode(newPassword));
         user.setEnabled(true);
         userRepository.save(user);
 
-        // 4. Mark this token as used so it can't be redeemed again
         setupToken.setUsed(true);
         tokenRepository.save(setupToken);
 
-        // 5. Notify the user their password was changed
         emailService.sendEmail(
                 user.getEmail(),
                 "Your password was changed",
