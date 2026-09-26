@@ -45,6 +45,7 @@ public class User {
 
     public Long getId() { return id; }
     public String getEmail() { return email; }
+    public String getPassword() { return password; }
     public Role getRole(){return role;}
     public Boolean getEnabled(){return enabled;}
     public Timestamp getCreatedAt(){return createdAt;}
