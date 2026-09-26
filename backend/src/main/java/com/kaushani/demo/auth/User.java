@@ -1,4 +1,4 @@
-package main.java.com.kaushani.demo.auth;
+package com.kaushani.demo.auth;
 
 
 import java.sql.Timestamp;
