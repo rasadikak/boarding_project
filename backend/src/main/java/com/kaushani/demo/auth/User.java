@@ -1,0 +1,64 @@
+package main.java.com.kaushani.demo.auth;
+
+
+import java.sql.Timestamp;
+
+
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name="users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable=false, unique=true)
+    private String email;
+
+    @Column(nullable=false)
+    private String password;
+
+    @Column(nullable=false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Column(nullable=false)
+    private Boolean enabled;
+
+    @Column(nullable=false)
+    private Timestamp createdAt;
+
+    public User(){}
+
+    public User( String email, String password, Role role, Boolean enabled, Timestamp createdAt) {
+        
+        this.email=email;
+        this.password=password;
+        this.role=role;
+        this.enabled=enabled;
+        this.createdAt=createdAt;
+
+        }
+
+    public Long getId() { return id; }
+    public String getEmail() { return email; }
+    public Role getRole(){return role;}
+    public Boolean getEnabled(){return enabled;}
+    public Timestamp getCreatedAt(){return createdAt;}
+
+    public void setEmail(String email) { this.email = email; }
+    public void setPassword(String password) { this.password=password; }
+    public void setRole(Role role) { this.role = role; }
+    public void setEnabled(Boolean enabled){this.enabled=enabled;}
+    public void setCreatedAt(Timestamp createdAt){this.createdAt=createdAt;}
+    
+
+    
+
+
+
+    
+}
