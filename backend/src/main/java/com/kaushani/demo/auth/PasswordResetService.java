@@ -4,13 +4,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PasswordSetupToken {
+public class PasswordResetService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public PasswordSetupToken(UserRepository userRepository,PasswordEncoder passwordEncoder,JwtUtil jwtUtil){
+    public PasswordResetService(UserRepository userRepository,PasswordEncoder passwordEncoder,JwtUtil jwtUtil){
         this.userRepository=userRepository;
         this.passwordEncoder=passwordEncoder;
         this.jwtUtil=jwtUtil;
@@ -18,11 +18,11 @@ public class PasswordSetupToken {
 
     }
 
-    public String forgetPasswordChange(String Password){
+    public void sendPasswordSetupEmail(User user){
 
     }
 
-    public String forcePasswordChange(String Password){
+    public void resetPassword(String token, String newPassword){
 
     }
 
