@@ -33,13 +33,13 @@ public class User {
 
     public User(){}
 
-    public User( String email, String password, Role role, Boolean enabled, Timestamp createdAt) {
+    public User( String email, String password, Role role, Boolean enabled) {
         
         this.email=email;
         this.password=password;
         this.role=role;
         this.enabled=enabled;
-        this.createdAt=createdAt;
+        
 
         }
 
@@ -54,6 +54,11 @@ public class User {
     public void setRole(Role role) { this.role = role; }
     public void setEnabled(Boolean enabled){this.enabled=enabled;}
     public void setCreatedAt(Timestamp createdAt){this.createdAt=createdAt;}
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+    }
     
 
     
