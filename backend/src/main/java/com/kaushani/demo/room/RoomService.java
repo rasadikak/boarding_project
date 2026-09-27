@@ -60,25 +60,32 @@ public class RoomService {
         
     }
 
+
+
     public Room updateRoom(String roomNumber, RoomType type, int capacity, RoomStatus status, int rentAmount){
 
-        try{
+        
 
-            Room room= roomRepository.findByRoomNumber(roomNumber);
-            if (!room){
-                throw new Exception(roomNumber+"room does not exists");
-            }
+        Room existingRoom = roomRepository.findByRoomNumber(roomNumber)
+                .orElseThrow(() -> new RuntimeException("Room not found: " + roomNumber));
 
-            Room newRoom= new Room(roomNumber, type, capacity, status,rentAmount );
+        existingRoom.setType(type);
+        existingRoom.setCapacity(capacity);
+        existingRoom.setStatus(status);
+        existingRoom.setRentAmount(rentAmount);
 
-            return roomRepository.save(newRoom);
-
-        }
-        catch(Exception e){
-            throw new Exception("can not get room details:"+ e.getMessage());
-        }
+        return roomRepository.save(existingRoom);
     }
+    
 
-    public void deleteRoom(String roomNumber){}
+    public String deleteRoom(String roomNumber){
+
+        Room existingRoom= roomRepository.findByRoomNumber(roomNumber)
+            .orElseThrow(()-> new RuntimeException("Room not found: " + roomNumber));
+        
+        roomRepository.delete(existingRoom);
+
+        return "Room " + roomNumber + " deleted successfully";
+    }
     
 }
