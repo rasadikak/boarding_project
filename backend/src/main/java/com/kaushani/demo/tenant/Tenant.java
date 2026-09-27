@@ -2,8 +2,9 @@ package com.kaushani.demo.tenant;
 
 import java.sql.Timestamp;
 
-import com.kaushani.demo.room.RoomStatus;
-import com.kaushani.demo.room.RoomType;
+import com.kaushani.demo.auth.User;
+import com.kaushani.demo.room.Room;
+
 
 import jakarta.persistence.*;
 
@@ -34,15 +35,26 @@ public class Tenant {
     @Column(nullable=false)
     private Timestamp createdAt;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
+
     public Tenant(){}
 
-    public Tenant( String name, String contactNumber, String guardianInfo, Timestamp moveInDate) {
+    public Tenant( String name, String contactNumber, String guardianInfo, Timestamp moveInDate, User user, Room room) {
         
         this.name=name;
         this.contactNumber=contactNumber;
         
         this.guardianInfo=guardianInfo;
         this.moveInDate=moveInDate;
+
+        this.user=user;
+        this.room=room;
         
 
         }
@@ -58,7 +70,13 @@ public class Tenant {
     public void setGuardianInfo(String guardianInfo) { this.guardianInfo = guardianInfo; }
     public void setMoveInDate(Timestamp moveInDate){this.moveInDate=moveInDate;}
     public void setCreatedAt(Timestamp createdAt){this.createdAt=createdAt;}
-    
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+
+    public Room getRoom() { return room; }
+    public void setRoom(Room room) { this.room = room; }
+        
 
     @PrePersist
     protected void onCreate() {
