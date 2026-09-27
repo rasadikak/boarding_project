@@ -24,39 +24,26 @@ public class RoomService {
         
     
 
-    public List<Room> getRooms() throws Exception{
-
-        try{
-                return roomRepository.findAll();
-        }
-
-        catch(Exception e){
-            throw new Exception("can not get room details:"+ e.getMessage());
-        }
-
-        
+    public List<Room> getRooms(){
+        return roomRepository.findAll();
     }
 
 
 
-    public Room createRoom(String roomNumber, RoomType type, int capacity, RoomStatus status, int rentAmount) throws Exception{
+    public Room createRoom(String roomNumber, RoomType type, int capacity, RoomStatus status, int rentAmount){
 
-        try{
+        
 
             boolean isExisting= roomRepository.existsByRoomNumber(roomNumber);
             if (isExisting){
-                throw new Exception(roomNumber+"room already exists");
+               throw new RuntimeException(roomNumber + " room already exists");
             }
 
             Room newRoom= new Room(roomNumber, type, capacity, status,rentAmount );
 
             return roomRepository.save(newRoom);
 
-        }
-        catch(Exception e){
-            throw new Exception("can not get room details:"+ e.getMessage());
-        }
-
+        
         
     }
 
