@@ -31,39 +31,35 @@ public class RoomController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/")
-    public List<Room> getAllRooms(@RequestParam String param) {
-        return roomService.getRooms()
+    public List<Room> getAllRooms() {
+        return roomService.getRooms();
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','TENANT')")
     @GetMapping("/{roomNumber}")
-    public Room getRoomByNumber(String roomNumber) {
+    public Room getRoomByNumber(@PathVariable String roomNumber) {
         return roomService.getRoomByNumber(roomNumber);
     }
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/add")
-    public String createRoom(@RequestBody String entity) {
-
-        return roomService.createRoom(entity, null, 0, null, 0)
+    @PostMapping("/")
+    public Room createRoom(@RequestBody Room room) {
+        return roomService.createRoom(room.getRoomNumber(), room.getType(), room.getCapacity(), room.getStatus(), room.getRentAmount());
     }
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("path/{id}")
-    public String updateRoom(@PathVariable String id, @RequestBody String entity) {
-        
-        return roomService.updateRoom()
-        
+    @PutMapping("/{roomNumber}")
+    public Room updateRoom(@PathVariable String roomNumber, @RequestBody Room room) {
+        return roomService.updateRoom(roomNumber, room.getType(), room.getCapacity(), room.getStatus(), room.getRentAmount());
     }
 
 
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("")
-    public String deleteRoom(){
-        return roomService.deleteRoom(null)
-        
+    @DeleteMapping("/{roomNumber}")
+    public String deleteRoom(@PathVariable String roomNumber){
+        return roomService.deleteRoom(roomNumber);
     }
     
     
