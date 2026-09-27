@@ -1,4 +1,4 @@
-package com.kaushani.demo.auth;
+package com.kaushani.demo.auth.dto;
 
 public class LoginRequest {
     private String email;
