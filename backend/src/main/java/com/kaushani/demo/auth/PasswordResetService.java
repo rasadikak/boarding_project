@@ -32,51 +32,53 @@ public class PasswordResetService {
     }
 
     public void sendPasswordSetupEmail(User user) {
+        try {
+            List<PasswordSetupToken> oldTokens = tokenRepository.findByUserAndUsedFalse(user);
+            for (PasswordSetupToken old : oldTokens) {
+                old.setUsed(true);
+            }
+            tokenRepository.saveAll(oldTokens);
 
-        List<PasswordSetupToken> oldTokens = tokenRepository.findByUserAndUsedFalse(user);
-        for (PasswordSetupToken old : oldTokens) {
-            old.setUsed(true);
+            String token = jwtUtil.generatePasswordSetupToken(user.getEmail());
+            tokenRepository.save(new PasswordSetupToken(token, user));
+
+            String link = frontendUrl + "/set-password?token=" + token;
+
+            emailService.sendEmail(
+                    user.getEmail(),
+                    "Set up your password",
+                    "Click here to set your password: " + link
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send password setup email: " + e.getMessage());
         }
-        tokenRepository.saveAll(oldTokens);
-
-        String token = jwtUtil.generatePasswordSetupToken(user.getEmail());
-        tokenRepository.save(new PasswordSetupToken(token, user));
-
-        String link = frontendUrl + "/set-password?token=" + token;
-
-        emailService.sendEmail(
-                user.getEmail(),
-                "Set up your password",
-                "Click here to set your password: " + link
-        );
     }
 
-    public void resetPassword(String token, String newPassword) {
+    public String resetPassword(String token, String newPassword) {
+        try {
+            String email = jwtUtil.extractPasswordSetupEmail(token);
 
-        String email = jwtUtil.extractPasswordSetupEmail(token);
+            PasswordSetupToken setupToken = tokenRepository.findByToken(token)
+                    .orElseThrow(() -> new RuntimeException("Invalid or unknown token"));
 
-        PasswordSetupToken setupToken = tokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid or unknown token"));
+            if (Boolean.TRUE.equals(setupToken.getUsed())) {
+                throw new RuntimeException("This link has already been used");
+            }
 
-        if (Boolean.TRUE.equals(setupToken.getUsed())) {
-            throw new RuntimeException("This link has already been used");
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setEnabled(true);
+            userRepository.save(user);
+
+            setupToken.setUsed(true);
+            tokenRepository.save(setupToken);
+
+            return "password updated successfully";
+
+        } catch (Exception e) {
+            throw new RuntimeException("Password reset failed: " + e.getMessage());
         }
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        user.setPassword(passwordEncoder.encode(newPassword));
-        user.setEnabled(true);
-        userRepository.save(user);
-
-        setupToken.setUsed(true);
-        tokenRepository.save(setupToken);
-
-        emailService.sendEmail(
-                user.getEmail(),
-                "Your password was changed",
-                "This is a confirmation that your account password was just changed. " +
-                "If you didn't do this, please contact support immediately."
-        );
     }
 }
