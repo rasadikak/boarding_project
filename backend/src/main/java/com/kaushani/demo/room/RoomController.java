@@ -35,7 +35,7 @@ public class RoomController {
         return roomService.getRooms();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','TENANT')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{roomNumber}")
     public Room getRoomByNumber(@PathVariable String roomNumber) {
         return roomService.getRoomByNumber(roomNumber);
