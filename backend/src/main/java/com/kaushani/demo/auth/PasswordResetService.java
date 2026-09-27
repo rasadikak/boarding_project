@@ -54,7 +54,7 @@ public class PasswordResetService {
         }
     }
 
-    public String resetPassword(String token, String newPassword) {
+    public void resetPassword(String token, String newPassword) {
         try {
             String email = jwtUtil.extractPasswordSetupEmail(token);
 
@@ -75,7 +75,7 @@ public class PasswordResetService {
             setupToken.setUsed(true);
             tokenRepository.save(setupToken);
 
-            return "password updated successfully";
+            
 
         } catch (Exception e) {
             throw new RuntimeException("Password reset failed: " + e.getMessage());

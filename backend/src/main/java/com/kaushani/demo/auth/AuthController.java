@@ -4,9 +4,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kaushani.demo.auth.dto.LoginRequest;
-import com.kaushani.demo.auth.dto.ForgotPasswordRequest;
-import com.kaushani.demo.auth.dto.ResetPasswordRequest;
 
+import com.kaushani.demo.auth.dto.ResetPasswordRequest;
+import com.kaushani.demo.auth.dto.SendMail;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,8 +34,8 @@ public class AuthController {
     }
 
 
-    @PostMapping("/forgot-password")
-    public String forgotPassword(@RequestBody ForgotPasswordRequest request) {
+    @PostMapping("/send-mail")
+    public String send_email(@RequestBody SendMail request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         passwordResetService.sendPasswordSetupEmail(user);
@@ -45,7 +45,7 @@ public class AuthController {
     @PostMapping("/reset-password")
         public String resetPassword(@RequestBody ResetPasswordRequest request) {
             passwordResetService.resetPassword(request.getToken(), request.getNewPassword());
-            return "Password has been reset";
+            return "Password updated successfully";
         }
     
     
