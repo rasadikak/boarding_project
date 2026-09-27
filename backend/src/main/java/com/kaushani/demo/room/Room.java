@@ -17,7 +17,8 @@ public class Room {
     private String roomNumber;
 
     @Column(nullable=false)
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private RoomType type;
 
 
     @Column(nullable=false)
@@ -35,7 +36,7 @@ public class Room {
 
     public Room(){}
 
-    public Room( String roomNumber, String type, int capacity, RoomStatus status, int rentAmount) {
+    public Room( String roomNumber, RoomType type, int capacity, RoomStatus status, int rentAmount) {
         
         this.roomNumber=roomNumber;
         this.type=type;
@@ -48,14 +49,14 @@ public class Room {
 
     public Long getId() { return id; }
     public String getRoomNumber() { return roomNumber; }
-    public String getType() { return type; }
+    public RoomType getType() { return type; }
     public int getCapacity(){return capacity;}
     public RoomStatus getStatus(){return status;}
     public int getRentAmount(){return rentAmount;}
     public Timestamp getCreatedAt(){return createdAt;}
 
     public void setRoomNumber(String roomNumber) { this.roomNumber = roomNumber; }
-    public void setType(String type) { this.type=type; }
+    public void setType(RoomType type) { this.type=type; }
     public void setCapacity(int capacity) { this.capacity = capacity; }
     public void setStatus(RoomStatus status){this.status=status;}
     public void setRentAmount(int rentAmount){this.rentAmount=rentAmount;}
