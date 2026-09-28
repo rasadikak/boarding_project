@@ -14,6 +14,8 @@ public interface TenantRepository extends JpaRepository<Tenant, Long>  {
 
     List<Tenant> findByRoom(Room room);
 
+    List<Tenant> findByUser_EnabledTrue();
+
 
 
 

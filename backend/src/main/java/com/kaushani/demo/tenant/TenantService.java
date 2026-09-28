@@ -64,11 +64,9 @@ public class TenantService {
         return tenantRepository.findAll();
     }
 
-    public List <Tenant>  getActiveTenants(User user){
+    public List<Tenant> getActiveTenants() {
 
-        return userRepository.findAll(user.getEnabled());
-
-        
+        return tenantRepository.findByUser_EnabledTrue();
     }
 
     public Tenant getTenantById(Long id){
@@ -78,8 +76,14 @@ public class TenantService {
 
     public void reassignRoom(){}
 
-    public void getMyProfile(String email){}
+    public void getMyProfile(String email){
 
-    public void getTenantsByRoom(){}
-    
+        return tenantRepository.findByUser_Email(email)
+    }
+
+    public List<Tenant> getTenantsByRoom(String roomNumber) {
+
+        Room room = roomService.getRoomByNumber(roomNumber);
+        return tenantRepository.findByRoom(room);
+    }
 }
