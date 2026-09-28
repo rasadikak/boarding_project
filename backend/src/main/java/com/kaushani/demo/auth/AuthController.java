@@ -3,10 +3,12 @@ package com.kaushani.demo.auth;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import com.kaushani.demo.auth.dto.LoginRequest;
 
 import com.kaushani.demo.auth.dto.ResetPasswordRequest;
 import com.kaushani.demo.auth.dto.SendMail;
+
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,10 +45,13 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-        public String resetPassword(@RequestBody ResetPasswordRequest request) {
+    public String resetPassword(@RequestBody ResetPasswordRequest request) {
             passwordResetService.resetPassword(request.getToken(), request.getNewPassword());
             return "Password updated successfully";
-        }
+    }
+
+    
+    
     
     
 }
