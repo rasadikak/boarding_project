@@ -50,7 +50,7 @@ public class Tenant {
         this.moveInDate = moveInDate;
         this.user = user;
         this.room = room;
-    }
+}
 
     public Long getId() { return id; }
 
