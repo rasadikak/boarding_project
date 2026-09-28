@@ -28,9 +28,15 @@ public class TenantService {
         return tenantRepository.findAll();
     }
 
-    public <List>Tenant getActiveTenants(){}
+    public List <Tenant> getActiveTenants(){
 
-    public Tenant getTenantById(){}
+        
+    }
+
+    public Tenant getTenantById(Long id){
+
+        return tenantRepository.findById(id).orElseThrow(()-> new RuntimeException("tenant" + id + "not found"));
+    }
 
     public Tenant reassignRoom(){}
 
