@@ -1,7 +1,7 @@
 package com.kaushani.demo.tenant;
 
 import com.kaushani.demo.auth.UserRepository;
-import java.security.Timestamp;
+import java.sql.Timestamp;
 import java.util.List;
 
 
@@ -13,6 +13,7 @@ import com.kaushani.demo.auth.Role;
 import com.kaushani.demo.auth.User;
 import com.kaushani.demo.room.Room;
 import com.kaushani.demo.room.RoomService;
+import com.kaushani.demo.room.RoomStatus;
 
 import jakarta.transaction.Transactional;
 
@@ -53,11 +54,7 @@ public class TenantService {
         return savedTenant;
     }
 
-    public void updateTenant(){
-
-    }
-
-    public void disableTenant(){}
+   
 
     public List <Tenant> getAllTenants(){
 
@@ -74,16 +71,67 @@ public class TenantService {
         return tenantRepository.findById(id).orElseThrow(()-> new RuntimeException("tenant" + id + "not found"));
     }
 
-    public void reassignRoom(){}
+    
 
-    public void getMyProfile(String email){
+    public Tenant getMyProfile(String email) {
 
         return tenantRepository.findByUser_Email(email)
+                .orElseThrow(() -> new RuntimeException("Tenant profile not found for: " + email));
     }
 
     public List<Tenant> getTenantsByRoom(String roomNumber) {
 
         Room room = roomService.getRoomByNumber(roomNumber);
         return tenantRepository.findByRoom(room);
+    }
+
+    @Transactional
+    public Tenant updateTenant(Long id, String name, String contactNumber, String guardianInfo) {
+
+        Tenant tenant = getTenantById(id);
+
+        tenant.setName(name);
+        tenant.setContactNumber(contactNumber);
+        tenant.setGuardianInfo(guardianInfo);
+
+        return tenantRepository.save(tenant);
+    }
+
+    @Transactional
+    public void disableTenant(Long id) {
+
+        Tenant tenant = getTenantById(id);
+
+        if (tenant.getMoveOutDate() != null) {
+            throw new RuntimeException("Tenant " + id + " has already moved out");
+        }
+
+        tenant.setMoveOutDate(new Timestamp(System.currentTimeMillis()));
+        authService.disableUserAccount(tenant.getUser());
+
+        tenantRepository.save(tenant);
+    }
+
+    @Transactional
+    public Tenant reassignRoom(Long id, String newRoomNumber) {
+
+        Tenant tenant = getTenantById(id);
+
+        if (tenant.getMoveOutDate() != null) {
+            throw new RuntimeException("Tenant " + id + " has already moved out");
+        }
+
+        Room newRoom = roomService.getRoomByNumber(newRoomNumber);
+
+        if (newRoom.getStatus() == RoomStatus.MAINTENANCE) {
+            throw new RuntimeException("Room " + newRoomNumber + " is under maintenance");
+        }
+
+        if (tenantRepository.countByRoomAndMoveOutDateIsNull(newRoom) >= newRoom.getCapacity()) {
+            throw new RuntimeException("Room " + newRoomNumber + " is full");
+        }
+
+        tenant.setRoom(newRoom);
+        return tenantRepository.save(tenant);
     }
 }

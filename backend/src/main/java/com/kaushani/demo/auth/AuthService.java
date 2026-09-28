@@ -53,4 +53,10 @@ public class AuthService {
 
         return userRepository.save(newUser);
     }
+
+
+    public void disableUserAccount(User user) {
+        user.setEnabled(false);
+        userRepository.save(user);
+    }
 }
