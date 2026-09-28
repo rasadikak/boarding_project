@@ -1,6 +1,7 @@
 package com.kaushani.demo.auth;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,28 +19,38 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    public boolean VerifyPassword(String rawPassword, String storedPassword) {
+    public boolean verifyPassword(String rawPassword, String storedPassword) {
         return passwordEncoder.matches(rawPassword, storedPassword);
     }
 
     public String login(String email, String password) {
-        try {
-            Optional<User> existingUser = userRepository.findByEmail(email);
+        Optional<User> existingUser = userRepository.findByEmail(email);
 
-            if (existingUser.isEmpty()) {
-                throw new RuntimeException("User not found");
-            }
-
-            User user = existingUser.get();
-
-            if (!VerifyPassword(password, user.getPassword())) {
-                throw new RuntimeException("Invalid password");
-            }
-
-            return jwtUtil.generateToken(user.getEmail(), user.getRole());
-        } catch (Exception e) {
-            throw new RuntimeException("Login failed: " + e.getMessage());
+        if (existingUser.isEmpty()) {
+            throw new RuntimeException("User not found");
         }
+
+        User user = existingUser.get();
+
+        if (!verifyPassword(password, user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        return jwtUtil.generateToken(user.getEmail(), user.getRole());
+    }
+
+    public User createUserAccount(String email, Role role) {
+
+        if (userRepository.existsByEmail(email)) {
+            throw new RuntimeException("An account with this email already exists: " + email);
+        }
+
+        User newUser = new User();
+        newUser.setEmail(email);
+        newUser.setRole(role);
+        newUser.setEnabled(false);
+        newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+
+        return userRepository.save(newUser);
     }
 }
-
