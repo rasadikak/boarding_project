@@ -2,85 +2,75 @@ package com.kaushani.demo.payment;
 
 import java.sql.Timestamp;
 
-import com.kaushani.demo.auth.User;
-import com.kaushani.demo.payment.PaymentStatus;
+import com.kaushani.demo.tenant.Tenant;
 
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.*;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
-@Entity 
-@Table(name= "payments")
+@Entity
+@Table(name = "payments")
 public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable=false)
-    private Long amount;
+    @Column(nullable = false)
+    private int amount;
 
-    @Column(nullable = true )
+    @Column(nullable = false)
     private Timestamp dueDate;
 
-    @Column(nullable=true)
+    @Column(nullable = true)
     private Timestamp paidDate;
 
     @Column(nullable = false)
     private String month;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     private Timestamp createdAt;
 
-    @ManyToOne 
-    @JoinColumn (name="user_id", nullable=false)
-    private User user;
+    @ManyToOne
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private Tenant tenant;
 
-    public Payment(Long id,Long amount,Timestamp dueDate,Timestamp paidDate,String month,PaymentStatus status,Timestamp createdAt,User user){
-        this.id=id;
-        this.amount=amount;
-        this.dueDate= dueDate;
-        this.paidDate=paidDate;
-        this.month=month;
-        this.status= status;
-        this.user=user;
+    public Payment() {}
+
+    public Payment(int amount, Timestamp dueDate, String month, PaymentStatus status, Tenant tenant) {
+        this.amount = amount;
+        this.dueDate = dueDate;
+        this.month = month;
+        this.status = status;
+        this.tenant = tenant;
     }
 
-    public Long getId(Long id){return id;}
-    public Long getAmount(Long amount){return amount;}
-    public Timestamp getDueDate(Timestamp dueDate){return dueDate;}
-    public Timestamp getPaidDate(Timestamp paidDate){return paidDate;}
-    public String getMonth(String month){return month;}
-    public User getUser(User user){return user;}
+    public Long getId() { return id; }
 
-    public void setId(Long id){ this.id=id;}
-    public void setAmount(Long amount){this.amount=amount;}
-    public void setDueDate(Timestamp dueDate){this.dueDate=dueDate;}
-    public void setPaidDate(Timestamp paidDate){this.paidDate=paidDate;}
-    public void setMonth(String month){this.month=month;}
-    public void setUser(User user){this.user=user;}
+    public int getAmount() { return amount; }
+    public void setAmount(int amount) { this.amount = amount; }
 
+    public Timestamp getDueDate() { return dueDate; }
+    public void setDueDate(Timestamp dueDate) { this.dueDate = dueDate; }
 
-    
+    public Timestamp getPaidDate() { return paidDate; }
+    public void setPaidDate(Timestamp paidDate) { this.paidDate = paidDate; }
 
+    public String getMonth() { return month; }
+    public void setMonth(String month) { this.month = month; }
 
+    public PaymentStatus getStatus() { return status; }
+    public void setStatus(PaymentStatus status) { this.status = status; }
 
+    public Timestamp getCreatedAt() { return createdAt; }
 
+    public Tenant getTenant() { return tenant; }
+    public void setTenant(Tenant tenant) { this.tenant = tenant; }
 
-
-
-
-
-
-
-    
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+    }
 }
