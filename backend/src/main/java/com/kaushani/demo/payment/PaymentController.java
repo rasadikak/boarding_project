@@ -25,7 +25,7 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    // ---------- Tenant only ----------
+    
 
     @PreAuthorize("hasRole('TENANT')")
     @GetMapping("/me")
@@ -33,7 +33,7 @@ public class PaymentController {
         return paymentService.getMyPayments(authentication.getName());
     }
 
-    // ---------- Admin only ----------
+    
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping

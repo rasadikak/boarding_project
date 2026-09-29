@@ -1,0 +1,12 @@
+package com.kaushani.demo.notifications;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface NotificationRepository extends JpaRepository<Notification, Long> {
+
+    List<Notification> findByTenantId(Long tenantId);
+
+    List<Notification> findByTenantIdIsNull();
+}

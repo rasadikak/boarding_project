@@ -25,7 +25,7 @@ public class ComplaintController {
         this.complaintService = complaintService;
     }
 
-    // ---------- Tenant only ----------
+    
 
     @PreAuthorize("hasRole('TENANT')")
     @PostMapping
@@ -39,7 +39,7 @@ public class ComplaintController {
         return complaintService.getMyComplaints(authentication.getName());
     }
 
-    // ---------- Admin only ----------
+    
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
