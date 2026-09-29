@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PaymentRepository extends JpaRepository<Payment,Long>{
+public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
-    List <Payment> findByTenant_id(Long tenant_id);
+    List<Payment> findByTenantId(Long tenantId);
 
-    List <Payment> findBystatus(PaymentStatus status);
+    List<Payment> findByStatus(PaymentStatus status);
 
-    
+    List<Payment> findByTenantIdAndMonth(Long tenantId, String month);
 
-    
+    List<Payment> findByMonthAndStatus(String month, PaymentStatus status);
 }
