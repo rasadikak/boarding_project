@@ -1,11 +1,10 @@
 package com.kaushani.demo.tenant;
 
-import com.kaushani.demo.auth.UserRepository;
 import java.sql.Timestamp;
 import java.util.List;
 
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kaushani.demo.auth.AuthService;
 import com.kaushani.demo.auth.PasswordResetService;
@@ -15,13 +14,9 @@ import com.kaushani.demo.room.Room;
 import com.kaushani.demo.room.RoomService;
 import com.kaushani.demo.room.RoomStatus;
 
-import jakarta.transaction.Transactional;
-
 @Service
 public class TenantService {
 
-
-    private final UserRepository userRepository;
     private final TenantRepository tenantRepository;
     private final AuthService authService;
     private final PasswordResetService passwordResetService;
@@ -30,12 +25,11 @@ public class TenantService {
     public TenantService(TenantRepository tenantRepository,
                          AuthService authService,
                          PasswordResetService passwordResetService,
-                         RoomService roomService, UserRepository userRepository) {
+                         RoomService roomService) {
         this.tenantRepository = tenantRepository;
         this.authService = authService;
         this.passwordResetService = passwordResetService;
         this.roomService = roomService;
-        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -51,36 +45,30 @@ public class TenantService {
 
         passwordResetService.sendPasswordSetupEmail(user);
 
+        roomService.refreshOccupancy(room, tenantRepository.countByRoomAndMoveOutDateIsNull(room));
+
         return savedTenant;
     }
 
-   
-
-    public List <Tenant> getAllTenants(){
-
+    public List<Tenant> getAllTenants() {
         return tenantRepository.findAll();
     }
 
     public List<Tenant> getActiveTenants() {
-
         return tenantRepository.findByUser_EnabledTrue();
     }
 
-    public Tenant getTenantById(Long id){
-
-        return tenantRepository.findById(id).orElseThrow(()-> new RuntimeException("tenant" + id + "not found"));
+    public Tenant getTenantById(Long id) {
+        return tenantRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tenant " + id + " not found"));
     }
 
-    
-
     public Tenant getMyProfile(String email) {
-
         return tenantRepository.findByUser_Email(email)
                 .orElseThrow(() -> new RuntimeException("Tenant profile not found for: " + email));
     }
 
     public List<Tenant> getTenantsByRoom(String roomNumber) {
-
         Room room = roomService.getRoomByNumber(roomNumber);
         return tenantRepository.findByRoom(room);
     }
@@ -106,10 +94,14 @@ public class TenantService {
             throw new RuntimeException("Tenant " + id + " has already moved out");
         }
 
+        Room room = tenant.getRoom();
+
         tenant.setMoveOutDate(new Timestamp(System.currentTimeMillis()));
         authService.disableUserAccount(tenant.getUser());
 
         tenantRepository.save(tenant);
+
+        roomService.refreshOccupancy(room, tenantRepository.countByRoomAndMoveOutDateIsNull(room));
     }
 
     @Transactional
@@ -121,6 +113,7 @@ public class TenantService {
             throw new RuntimeException("Tenant " + id + " has already moved out");
         }
 
+        Room oldRoom = tenant.getRoom();
         Room newRoom = roomService.getRoomByNumber(newRoomNumber);
 
         if (newRoom.getStatus() == RoomStatus.MAINTENANCE) {
@@ -132,6 +125,11 @@ public class TenantService {
         }
 
         tenant.setRoom(newRoom);
-        return tenantRepository.save(tenant);
+        Tenant savedTenant = tenantRepository.save(tenant);
+
+        roomService.refreshOccupancy(oldRoom, tenantRepository.countByRoomAndMoveOutDateIsNull(oldRoom));
+        roomService.refreshOccupancy(newRoom, tenantRepository.countByRoomAndMoveOutDateIsNull(newRoom));
+
+        return savedTenant;
     }
 }
