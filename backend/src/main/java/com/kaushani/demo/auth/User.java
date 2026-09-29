@@ -1,6 +1,7 @@
 package com.kaushani.demo.auth;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.sql.Timestamp;
 
 
@@ -18,6 +19,7 @@ public class User {
     @Column(nullable=false, unique=true)
     private String email;
 
+    @JsonIgnore 
     @Column(nullable=false)
     private String password;
 

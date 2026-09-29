@@ -7,7 +7,9 @@ public class HashGenerator {
     public static void main(String[] args) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        System.out.println("admin123 -> " + encoder.encode("610K"));
+        System.out.println("ssss -> " + encoder.encode("1234"));
+        
+        
         
     }
 }
